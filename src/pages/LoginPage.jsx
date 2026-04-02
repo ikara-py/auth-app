@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from '../api/auth';
+import { handleApiError } from '../utils/handleError';
 import styles from './LoginPage.module.css';
 
 function LoginPage() {
@@ -20,11 +21,7 @@ function LoginPage() {
             await login(email, password);
             navigate('/dashboard');
         } catch (err) {
-            if (err.response?.status === 401) {
-                setError('Invalid email or password');
-            } else {  
-                setError('Something went wrong');
-            }
+            setError(handleApiError(err));
         } finally {
             setLoading(false);
         }
