@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { register } from '../api/auth';
+import { handleApiError } from '../utils/handleError';
 import styles from './RegisterPage.module.css';
 
 function RegisterPage() {
@@ -8,24 +9,20 @@ function RegisterPage() {
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [message, setMessage] = useState('');
-    const [errors, setErrors] = useState({});
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setErrors({});
+        setError('');
         setMessage('');
 
         try {
             const data = await register(name, email, password, passwordConfirmation);
             setMessage(data.message);
-        } catch (error) {
-            if (error.response?.status === 422) {
-                setErrors(error.response.data.errors || {});
-            } else {
-                setMessage('Something went wrong...');
-            }
+        } catch (err) {
+            setError(handleApiError(err));
         } finally {
             setLoading(false);
         }
@@ -42,61 +39,56 @@ function RegisterPage() {
                 </div>
 
                 {message && <div className={styles.successAlert}>{message}</div>}
+                {error && <div className={styles.errorAlert}>{error}</div>}
 
                 <form onSubmit={handleSubmit}>
 
                     <div className={styles.fieldGroup}>
                         <label className={styles.label}>Full Name</label>
                         <input
-                            className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                            className={styles.input}
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="John Doe"
                             required
                         />
-                        {errors.name && <p className={styles.fieldError}>{errors.name[0]}</p>}
                     </div>
 
                     <div className={styles.fieldGroup}>
                         <label className={styles.label}>Email Address</label>
                         <input
-                            className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+                            className={styles.input}
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="john@example.com"
                             required
                         />
-                        {errors.email && <p className={styles.fieldError}>{errors.email[0]}</p>}
                     </div>
 
                     <div className={styles.fieldGroup}>
                         <label className={styles.label}>Password</label>
                         <input
-                            className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
+                            className={styles.input}
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Min. 8 characters"
                             required
                         />
-                        {errors.password && <p className={styles.fieldError}>{errors.password[0]}</p>}
                     </div>
 
                     <div className={styles.fieldGroup}>
                         <label className={styles.label}>Confirm Password</label>
                         <input
-                            className={`${styles.input} ${errors.password_confirmation ? styles.inputError : ''}`}
+                            className={styles.input}
                             type="password"
                             value={passwordConfirmation}
                             onChange={(e) => setPasswordConfirmation(e.target.value)}
                             placeholder="Repeat your password"
                             required
                         />
-                        {errors.password_confirmation && (
-                            <p className={styles.fieldError}>{errors.password_confirmation[0]}</p>
-                        )}
                     </div>
 
                     <div className={styles.divider} />
