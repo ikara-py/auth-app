@@ -42,4 +42,25 @@ export const logout = async()=>{
     return response.data;
 };
 
+export const getProfile = async () => {
+    const response = await api.get('/me');
+    return response.data;
+};
 
+export const updateProfile = async (name, email) => {
+    const response = await api.put('/me', { name, email });
+    return response.data;
+};
+
+export const isAuthenticated = () => {
+    return !!localStorage.getItem('token');
+};
+
+export const changePassword = async (currentPassword, newPassword, newPasswordConfirmation) => {
+    const response = await api.put('/me/password', {
+        current_password: currentPassword,
+        password: newPassword,
+        password_confirmation: newPasswordConfirmation
+    });
+    return response.data;
+};
